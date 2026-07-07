@@ -25,6 +25,8 @@
  * https://github.com/FreeRTOS
  *
  */
+ #include "FreeRTOSConfig.h"
+
     .eabi_attribute Tag_ABI_align_preserved, 1
     .text
     .arm
@@ -216,10 +218,11 @@ FreeRTOS_IRQ_Handler:
     ISB
 
     /* Write the value read from ICCIAR to ICCEOIR. */
+#ifndef configINTERRUPT_SPLIT_DEACTIVATION
     LDR     r4, ulICCEOIRConst
     LDR     r4, [r4]
     STR     r0, [r4]
-
+#endif
     /* Restore the old nesting count. */
     STR     r1, [r3]
 

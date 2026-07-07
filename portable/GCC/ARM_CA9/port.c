@@ -350,6 +350,8 @@ BaseType_t xPortStartScheduler( void )
         /* Read the value back to see how many bits stuck. */
         ucMaxPriorityValue = *pucFirstUserPriorityRegister;
 
+        ucMaxPriorityValue = portLOWEST_INTERRUPT_PRIORITY;
+
         /* Shift to the least significant bits. */
         while( ( ucMaxPriorityValue & portBIT_0_SET ) != portBIT_0_SET )
         {
