@@ -187,11 +187,11 @@ static ISR_Handler_t xInterruptHandlerTable[ portNUM_VECTORS ] = { NULL };
 #endif /* configSUPPORT_FPU */
 
 /* The stack used by interrupt handlers. */
-static uint32_t ulSystemStack[ configISR_STACK_SIZE ] __attribute__( ( used ) ) = { 0 };
+static __attribute__( ( aligned( 16 ) ) ) uint32_t ulSystemStack[ configISR_STACK_SIZE ] __attribute__( ( used ) ) = { 0 };
 
 /* Don't use the very top of the system stack so the return address
  * appears as 0 if the debugger tries to unwind the stack. */
-volatile uint32_t ulTopOfSystemStack __attribute__( ( used ) ) = ( uint32_t ) &( ulSystemStack[ configISR_STACK_SIZE - 5 ] );
+volatile uint32_t ulTopOfSystemStack __attribute__( ( used ) ) = ( uint32_t ) &( ulSystemStack[ configISR_STACK_SIZE - 4 ] );
 
 /* If a yield is requested from an interrupt or from a critical section then
  * the yield is not performed immediately, and ulPortYieldPending is set to pdTRUE
@@ -577,6 +577,10 @@ void vPortAPICErrorHandler( void )
                 ( xInterruptHandlerTable[ ulVector ] )();
             }
         }
+
+        #if defined( configUSE_IOAPIC_EOI ) && ( configUSE_IOAPIC_EOI == 1 )
+            xPortIoapicEoiHandler( ulVector );
+        #endif
 
         /* Check for a system stack overflow. */
         configASSERT( ulSystemStack[ 10 ] == portSTACK_WORD );
